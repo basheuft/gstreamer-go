@@ -191,6 +191,14 @@ func (e *Element) SetCap(cap string) {
 	C.gstreamer_set_caps(e.element, capStr)
 }
 
+func (e *Element) SetPropertyFloat(key string, val float32) {
+	cKey := C.CString(key)
+	cVal := C.float(val)
+	defer C.free(unsafe.Pointer(cKey))
+
+	C.gstreamer_set_property_float(e.element, cKey, cVal)
+}
+
 func (e *Element) Push(buffer []byte) {
 
 	b := C.CBytes(buffer)

@@ -61,6 +61,8 @@ GstClockTime gstreamer_pipeline_get_latency(GstPipeline *pipeline);
 
 void gstreamer_set_caps(GstElement *element, char *caps);
 
+void gstreamer_set_property_float(GstElement *element, char *key, float val);
+
 void gstreamer_element_push_buffer(GstElement *element, void *buffer,int len);
 
 void gstreamer_element_push_buffer_timestamp(GstElement *element, void *buffer,int len, guint64 pts);

@@ -144,6 +144,10 @@ void gstreamer_set_caps(GstElement *element, char *capstr) {
     gst_caps_unref(caps);
 }
 
+void gstreamer_set_property_float(GstElement *element, char *key, float val) {
+    g_object_set(element, key, val, NULL);
+}
+
 
 void gstreamer_element_push_buffer(GstElement *element, void *buffer,int len) {
     gpointer p = g_memdup(buffer, len);
