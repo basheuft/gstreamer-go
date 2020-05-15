@@ -6,7 +6,6 @@ package gstreamer
 */
 import "C"
 import (
-	"errors"
 	"fmt"
 	"sync"
 	"unsafe"
@@ -69,164 +68,10 @@ func gobool(b C.gboolean) bool {
 	return false
 }
 
-type Element struct {
-	element *C.GstElement
-	out     chan []byte
-	stop    bool
-	id      int
-}
-
-type Pipeline struct {
-	pipeline *C.GstPipeline
-	messages chan *Message
-	id       int
-}
-
 var pipelines = make(map[int]*Pipeline)
 var elements = make(map[int]*Element)
 var gstreamerLock sync.Mutex
 var gstreamerIdGenerate = 10000
-
-func New(pipelineStr string) (*Pipeline, error) {
-	pipelineStrUnsafe := C.CString(pipelineStr)
-	defer C.free(unsafe.Pointer(pipelineStrUnsafe))
-	cpipeline := C.gstreamer_create_pipeline(pipelineStrUnsafe)
-	if cpipeline == nil {
-		return nil, errors.New("create pipeline error")
-	}
-
-	pipeline := &Pipeline{
-		pipeline: cpipeline,
-	}
-
-	gstreamerLock.Lock()
-	defer gstreamerLock.Unlock()
-	gstreamerIdGenerate += 1
-	pipeline.id = gstreamerIdGenerate
-	pipelines[pipeline.id] = pipeline
-	return pipeline, nil
-}
-
-func (p *Pipeline) PullMessage() <-chan *Message {
-	p.messages = make(chan *Message, 5)
-	C.gstreamer_pipeline_but_watch(p.pipeline, C.int(p.id))
-	return p.messages
-}
-
-func (p *Pipeline) Start() {
-	C.gstreamer_pipeline_start(p.pipeline, C.int(p.id))
-}
-
-func (p *Pipeline) Pause() {
-	C.gstreamer_pipeline_pause(p.pipeline)
-}
-
-func (p *Pipeline) Stop() {
-	gstreamerLock.Lock()
-	delete(pipelines, p.id)
-	gstreamerLock.Unlock()
-	if p.messages != nil {
-		close(p.messages)
-	}
-	C.gstreamer_pipeline_stop(p.pipeline)
-}
-
-func (p *Pipeline) SendEOS() {
-	C.gstreamer_pipeline_sendeos(p.pipeline)
-}
-
-func (p *Pipeline) SetAutoFlushBus(flush bool) {
-	gflush := gbool(flush)
-	C.gstreamer_pipeline_set_auto_flush_bus(p.pipeline, gflush)
-}
-
-func (p *Pipeline) GetAutoFlushBus() bool {
-	gflush := C.gstreamer_pipeline_get_auto_flush_bus(p.pipeline)
-	return gobool(gflush)
-}
-
-func (p *Pipeline) GetDelay() uint64 {
-
-	delay := C.gstreamer_pipeline_get_delay(p.pipeline)
-	return uint64(delay)
-}
-
-func (p *Pipeline) SetDelay(delay uint64) {
-	C.gstreamer_pipeline_set_delay(p.pipeline, C.guint64(delay))
-}
-
-func (p *Pipeline) GetLatency() uint64 {
-
-	latency := C.gstreamer_pipeline_get_latency(p.pipeline)
-	return uint64(latency)
-}
-
-func (p *Pipeline) SetLatency(latency uint64) {
-	C.gstreamer_pipeline_set_latency(p.pipeline, C.guint64(latency))
-}
-
-func (p *Pipeline) FindElement(name string) *Element {
-	elementName := C.CString(name)
-	defer C.free(unsafe.Pointer(elementName))
-	gelement := C.gstreamer_pipeline_findelement(p.pipeline, elementName)
-	if gelement == nil {
-		return nil
-	}
-	element := &Element{
-		element: gelement,
-	}
-
-	gstreamerLock.Lock()
-	defer gstreamerLock.Unlock()
-	gstreamerIdGenerate += 1
-	element.id = gstreamerIdGenerate
-	elements[element.id] = element
-
-	return element
-}
-
-func (e *Element) SetCap(cap string) {
-	capStr := C.CString(cap)
-	defer C.free(unsafe.Pointer(capStr))
-	C.gstreamer_set_caps(e.element, capStr)
-}
-
-func (e *Element) SetPropertyFloat(key string, val float32) {
-	cKey := C.CString(key)
-	cVal := C.float(val)
-	defer C.free(unsafe.Pointer(cKey))
-
-	C.gstreamer_set_property_float(e.element, cKey, cVal)
-}
-
-func (e *Element) Push(buffer []byte) {
-
-	b := C.CBytes(buffer)
-	defer C.free(unsafe.Pointer(b))
-	C.gstreamer_element_push_buffer(e.element, b, C.int(len(buffer)))
-}
-
-func (e *Element) Poll() <-chan []byte {
-	if e.out == nil {
-		e.out = make(chan []byte, 10)
-		C.gstreamer_element_pull_buffer(e.element, C.int(e.id))
-	}
-	return e.out
-}
-
-func (e *Element) Stop() {
-	gstreamerLock.Lock()
-	delete(elements, e.id)
-	gstreamerLock.Unlock()
-	if e.stop {
-		return
-	}
-	if e.out != nil {
-		e.stop = true
-		close(e.out)
-	}
-
-}
 
 //export goHandleSinkBuffer
 func goHandleSinkBuffer(buffer unsafe.Pointer, bufferLen C.int, elementID C.int) {

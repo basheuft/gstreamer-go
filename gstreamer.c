@@ -211,5 +211,17 @@ void gstreamer_element_pull_buffer(GstElement *element, int elementId) {
     g_signal_connect(element, "eos", G_CALLBACK(gstreamer_sink_eos_handler), s); 
 }
 
+void gstreamer_bin_add_element(GstElement *bin, GstElement *element) {
+    gst_bin_add_many(GST_BIN(bin), element, NULL);
+}
 
+GstElement* gstreamer_bin_get_by_name(GstElement *bin, char *name) {
+    GstElement* element = NULL;
+    element = gst_bin_get_by_name(GST_BIN(bin), name);
 
+    return element;
+}
+
+void gstreamer_pipeline_bin_add(GstPipeline *pipeline, GstElement *bin) {
+    gst_bin_add(GST_BIN(pipeline), bin);
+}
