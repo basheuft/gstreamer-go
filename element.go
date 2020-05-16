@@ -77,3 +77,8 @@ func (e *Element) Stop() {
 	}
 
 }
+
+func (e *Element) QueryDuration() int64 {
+	duration := C.gstreamer_element_query_duration(e.element)
+	return int64(duration)
+}

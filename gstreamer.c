@@ -227,7 +227,14 @@ void gstreamer_pipeline_bin_add(GstPipeline *pipeline, GstElement *bin) {
     gst_bin_add(GST_BIN(pipeline), bin);
 }
 
+int64_t gstreamer_element_query_duration(GstElement *element) {
+    int64_t duration;
+    gst_element_query_duration(element, GST_FORMAT_TIME, &duration);
+
+    return duration;
+}
+
 GstMessage* gstreamer_bus_poll(GstPipeline *pipeline) {
     GstBus *bus = gst_pipeline_get_bus(pipeline);
-    gst_bus_poll(bus, GST_MESSAGE_ANY, GST_CLOCK_TIME_NONE);
+    gst_bus_poll(bus, GST_MESSAGE_STATE_CHANGED, GST_CLOCK_TIME_NONE);
 }
