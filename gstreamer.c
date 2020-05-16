@@ -53,6 +53,7 @@ static gboolean gstreamer_bus_call(GstBus *bus, GstMessage *msg, gpointer user_d
     }
     
     default:
+        goHandleBusMessage(msg,pipelineId);
         break;
     }
 
@@ -224,4 +225,9 @@ GstElement* gstreamer_bin_get_by_name(GstElement *bin, char *name) {
 
 void gstreamer_pipeline_bin_add(GstPipeline *pipeline, GstElement *bin) {
     gst_bin_add(GST_BIN(pipeline), bin);
+}
+
+GstMessage* gstreamer_bus_poll(GstPipeline *pipeline) {
+    GstBus *bus = gst_pipeline_get_bus(pipeline);
+    gst_bus_poll(bus, GST_MESSAGE_ANY, GST_CLOCK_TIME_NONE);
 }

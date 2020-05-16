@@ -72,5 +72,6 @@ void gstreamer_element_pull_buffer(GstElement *element, int elementId);
 void gstreamer_bin_add_element(GstElement *bin, GstElement *element);
 GstElement* gstreamer_bin_get_by_name(GstElement *bin, char *name);
 void gstreamer_pipeline_bin_add(GstPipeline *pipeline, GstElement *bin);
+GstMessage* gstreamer_bus_poll(GstPipeline *pipeline);
 
 #endif

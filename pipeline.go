@@ -130,6 +130,13 @@ func (p *Pipeline) AddElement(name string, qName string) *Element {
 	}
 }
 
+func (p *Pipeline) PollMessage() *Message {
+	msg := C.gstreamer_bus_poll(p.pipeline)
+	return &Message{
+		GstMessage: msg,
+	}
+}
+
 func (p *Pipeline) AddBin(bin *Bin) {
 	C.gstreamer_pipeline_bin_add(p.pipeline, bin.bin)
 }
