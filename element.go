@@ -87,3 +87,7 @@ func (e *Element) QueryPosition() int64 {
 	position := C.gstreamer_element_query_position(e.element)
 	return int64(position)
 }
+
+func (e *Element) SeekPosition(position int64) {
+	C.gstreamer_element_seek(e.element, C.long(position))
+}

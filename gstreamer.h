@@ -75,5 +75,6 @@ void gstreamer_pipeline_bin_add(GstPipeline *pipeline, GstElement *bin);
 GstMessage* gstreamer_bus_poll(GstPipeline *pipeline);
 int64_t gstreamer_element_query_duration(GstElement *element);
 int64_t gstreamer_element_query_position(GstElement *element);
+void gstreamer_element_seek(GstElement *element, int64_t position);
 
 #endif

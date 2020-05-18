@@ -241,6 +241,10 @@ int64_t gstreamer_element_query_position(GstElement *element) {
     return position;
 }
 
+void gstreamer_element_seek(GstElement *element, int64_t position) {
+    gst_element_seek_simple(element, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH, position);
+}
+
 GstMessage* gstreamer_bus_poll(GstPipeline *pipeline) {
     GstBus *bus = gst_pipeline_get_bus(pipeline);
     gst_bus_poll(bus, GST_MESSAGE_STATE_CHANGED, GST_CLOCK_TIME_NONE);
