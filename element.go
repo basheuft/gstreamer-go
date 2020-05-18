@@ -82,3 +82,8 @@ func (e *Element) QueryDuration() int64 {
 	duration := C.gstreamer_element_query_duration(e.element)
 	return int64(duration)
 }
+
+func (e *Element) QueryPosition() int64 {
+	position := C.gstreamer_element_query_position(e.element)
+	return int64(position)
+}

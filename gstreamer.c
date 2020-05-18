@@ -234,7 +234,15 @@ int64_t gstreamer_element_query_duration(GstElement *element) {
     return duration;
 }
 
+int64_t gstreamer_element_query_position(GstElement *element) {
+    int64_t position;
+    gst_element_query_position(element, GST_FORMAT_TIME, &position);
+
+    return position;
+}
+
 GstMessage* gstreamer_bus_poll(GstPipeline *pipeline) {
     GstBus *bus = gst_pipeline_get_bus(pipeline);
     gst_bus_poll(bus, GST_MESSAGE_STATE_CHANGED, GST_CLOCK_TIME_NONE);
+    gst_object_unref(bus);
 }
