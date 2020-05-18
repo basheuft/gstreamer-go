@@ -241,7 +241,7 @@ int64_t gstreamer_element_query_position(GstElement *element) {
     return position;
 }
 
-void gstreamer_element_seek(GstElement *element, long position) {
+void gstreamer_element_seek(GstElement *element, long long position) {
     gst_element_seek_simple(element, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH, position);
 }
 
